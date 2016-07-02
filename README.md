@@ -9,13 +9,18 @@
 
 ## Install
 ```
-npm i waterline-auto --save
+npm i waterline-auto -g
 ```
 
-## API
+## Usage
+type `wa` | `waterline-auto`
+
+```shell
+$ wa [-h host] [-p port] [-u user] [-a password] [-d database] [-t tables]
 ```
-const waterlineAuto = require('waterline-auto');
-```
+
+### Notes
+- `-a` take from `redis-cli`, `authentication`
 
 ## Changelog
 [CHANGELOG.md](CHANGELOG.md)
