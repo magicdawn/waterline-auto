@@ -6,6 +6,7 @@
  * Module dependencies
  */
 
+const inspect = require('util').inspect;
 const fs = require('fs-extra');
 const async = require('co').wrap;
 const _ = require('lodash');
@@ -43,7 +44,8 @@ const main = async(function*() {
 
   _.each(transformed, (v, k) => {
     const prefix = '\'use strict\';\n\nmodule.exports = ';
-    fs.writeFileSync('./' + k + '.js', prefix + JSON.stringify(v, null, '  '), 'utf8');
+    const content = prefix + inspect(v) + ';'; // prefix + JSON.stringify(v, null, '  ')
+    fs.writeFileSync('./' + k + '.js', content, 'utf8');
   });
 
   // end
