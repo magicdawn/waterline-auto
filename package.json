@@ -3,8 +3,14 @@
   "version": "0.0.1",
   "description": "Automatically generate bare Waterline models from your database.",
   "main": "index.js",
+  "bin": {
+    "waterline-auto": "bin/waterline-auto",
+    "wa": "bin/waterline-auto"
+  },
   "dependencies": {
     "co": "^4.6.0",
+    "debug": "^2.2.0",
+    "fs-extra": "^0.30.0",
     "lodash": "^4.13.1",
     "minimist": "^1.2.0",
     "mysql": "^2.11.1",
