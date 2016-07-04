@@ -22,37 +22,49 @@ const argv = require('minimist')(process.argv.slice(2), {
     d: 'database',
     t: 'tables',
     table: 'tables', // torrlent,
-    r: 'raw-type'
+    r: 'raw-type',
+    c: 'comment'
   },
-  boolean: ['raw-type'],
+  boolean: ['raw-type', 'comment', 'sequelize-log'],
   default: {
-    'raw-type': true
+    'raw-type': true,
+    comment: true,
+    'sequelize-log': true
   }
 });
 
 const main = async(function*() {
-  const tables = yield lib.getTables({
+  const auto = yield lib.getTables({
     host: argv.host,
     port: argv.port,
     user: argv.user,
     password: argv.password,
     database: argv.database,
-    tables: (argv.tables || '').split(',').map(_.trim).filter(Boolean)
+    tables: (argv.tables || '').split(',').map(_.trim).filter(Boolean),
+    sequelizeLog: argv['sequelize-log']
   });
-
+  const tables = auto.tables;
   debug('tables: %j', tables);
+
   const transformed = {};
-  _.each(tables, (table, tableName) => {
-    console.log(table);
-    const o = lib.transform(tableName, table, {
-      rawType: argv['raw-type']
+  for (let tableName in tables) {
+    const table = tables[tableName];
+    const o = yield lib.transform({
+      dbName: argv.database,
+      tableName: tableName,
+      table: table,
+      rawType: argv['raw-type'],
+      comment: argv.comment,
+      seqAuto: auto
     });
     transformed[tableName] = o;
-  });
+  }
 
   _.each(transformed, (v, k) => {
     const prefix = '\'use strict\';\n\nmodule.exports = ';
-    const content = prefix + inspect(v) + ';'; // prefix + JSON.stringify(v, null, '  ')
+    const content = prefix + inspect(v, {
+      depth: null
+    }) + ';'; // prefix + JSON.stringify(v, null, '  ')
     fs.writeFileSync('./' + k + '.js', content, 'utf8');
   });
 
