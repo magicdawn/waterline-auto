@@ -35,7 +35,9 @@ const getTables = exports.getTables = co.wrap(function*(options) {
  * transform a table
  */
 
-const transform = exports.transform = function(tableName, table) {
+const transform = exports.transform = function(tableName, table, options) {
+  options = options || {};
+  const rawType = Boolean(options.rawType);
   const ret = {
     tableName: tableName
   };
@@ -58,7 +60,8 @@ const transform = exports.transform = function(tableName, table) {
     if (key !== fieldName) o.columnName = fieldName;
 
     // type
-    o.type = getType(fieldDef.type);
+    o.type = getType(fieldDef.type).toLowerCase();
+    if (rawType) o.rawType = fieldDef.type;
 
     // primaryKey
     if (fieldDef.primaryKey) o.primaryKey = true;
@@ -70,38 +73,35 @@ const transform = exports.transform = function(tableName, table) {
   return ret;
 };
 
+// http://sailsjs.org/documentation/concepts/models-and-orm/attributes
 const getType = t => {
-  const _attr = t.toLowerCase();
+  t = t.toLowerCase();
   let val;
 
-  if (_attr === 'tinyint(1)' || _attr === 'boolean' || _attr === 'bit(1)') {
-    val = 'boolean';
-  } else if (_attr.match(/^(smallint|mediumint|tinyint|int)/)) {
-    val = 'integer';
-  } else if (_attr.match(/^bigint/)) {
-    val = 'integer';
-  } else if (_attr.match(/^string|varchar|varying|nvarchar/)) {
-    val = 'STRING';
-  } else if (_attr.match(/^char/)) {
-    val = 'string';
-  } else if (_attr.match(/text|ntext$/)) {
-    val = 'text';
-  } else if (_attr.match(/^(date)/)) {
-    val = 'date';
-  } else if (_attr.match(/^(time)/)) {
-    val = '<uknown type>';
-  } else if (_attr.match(/^(float|float4)/)) {
-    val = 'FLOAT';
-  } else if (_attr.match(/^decimal/)) {
-    val = 'float';
-  } else if (_attr.match(/^json/)) {
-    val = 'json';
-  } else if (_attr.match(/^jsonb/)) {
-    val = 'JSONB';
-  } else if (_attr.match(/^geometry/)) {
-    val = 'GEOMETRY';
-  } else {
-    val = '<uknown type>';
-  }
-  return val && val.toLowerCase();
+  // boolean
+  if (t === 'tinyint(1)' || t === 'boolean' || t === 'bit(1)') return 'boolean';
+
+  // integer
+  if (t.match(/^(smallint|mediumint|tinyint|bigint|int)/)) return 'integer';
+
+  // float
+  if (t.match(/^float|decimal/)) return 'float';
+
+  // string
+  if (t.match(/^string|varchar|varying|nvarchar|char/)) return 'string';
+
+  // text
+  if (t.match(/^longtext/)) return 'longtext';
+  if (t.match(/^mediumtext/)) return 'mediumtext';
+  if (t.match(/text$/)) return 'text';
+
+  // date & time
+  if (t === 'datetime') return 'datetime';
+  if (t.match(/^date/)) return 'date';
+  if (t.match(/^time/)) return '<unsupported type>';
+
+  // json
+  if (t.match(/^json/)) return 'json';
+
+  return '<uknown type>';
 };

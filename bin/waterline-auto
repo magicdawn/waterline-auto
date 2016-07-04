@@ -21,7 +21,12 @@ const argv = require('minimist')(process.argv.slice(2), {
     a: 'password', // authentication
     d: 'database',
     t: 'tables',
-    table: 'tables' // torrlent
+    table: 'tables', // torrlent,
+    r: 'raw-type'
+  },
+  boolean: ['raw-type'],
+  default: {
+    'raw-type': true
   }
 });
 
@@ -38,7 +43,10 @@ const main = async(function*() {
   debug('tables: %j', tables);
   const transformed = {};
   _.each(tables, (table, tableName) => {
-    const o = lib.transform(tableName, table);
+    console.log(table);
+    const o = lib.transform(tableName, table, {
+      rawType: argv['raw-type']
+    });
     transformed[tableName] = o;
   });
 
