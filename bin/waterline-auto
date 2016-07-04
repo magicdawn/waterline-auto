@@ -27,8 +27,8 @@ const argv = require('minimist')(process.argv.slice(2), {
   },
   boolean: ['raw-type', 'comment', 'sequelize-log'],
   default: {
-    'raw-type': true,
     comment: true,
+    'raw-type': true,
     'sequelize-log': true
   }
 });
@@ -65,7 +65,8 @@ const main = async(function*() {
     const content = prefix + inspect(v, {
       depth: null
     }) + ';'; // prefix + JSON.stringify(v, null, '  ')
-    fs.writeFileSync('./' + k + '.js', content, 'utf8');
+    const filename = _.upperFirst(_.camelCase(k));
+    fs.writeFileSync('./' + filename + '.js', content, 'utf8');
   });
 
   // end
