@@ -13,6 +13,7 @@ const _ = require('lodash');
 const debug = require('debug')('waterline-auto:bin');
 const lib = require('../');
 const format = require('js-beautify')['js_beautify'];
+const pkgVersion = require('../package').version;
 const argv = require('minimist')(process.argv.slice(2), {
   alias: {
     h: 'host',
@@ -25,13 +26,34 @@ const argv = require('minimist')(process.argv.slice(2), {
     r: 'raw-type',
     c: 'comment'
   },
-  boolean: ['raw-type', 'comment', 'sequelize-log'],
+  boolean: ['raw-type', 'comment', 'sequelize-log', 'help'],
   default: {
     comment: true,
+    help: false,
     'raw-type': true,
     'sequelize-log': true
   }
 });
+
+if (process.argv.length <= 2) argv.help = true;
+if (argv.help) {
+  console.log(`
+    waterline-auto@${ pkgVersion } - auto generate model from your db
+
+    Options
+      -h, --host              host
+      -p, --port              port
+      -u, --user              username
+      -a, --password          password
+      -d, --database          database
+      -t, --table, --tables   table names
+      -r, --raw-type          add \`rawType\` in output, default true
+      -c, --comment           add \`comment\` in output, default true
+      --sequelize-log         sequelize \`logging\`, default true
+      --help                  show this help message
+  `);
+  process.exit();
+}
 
 const main = async(function*() {
   const auto = yield lib.getTables({
