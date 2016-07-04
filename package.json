@@ -7,6 +7,14 @@
     "waterline-auto": "bin/waterline-auto",
     "wa": "bin/waterline-auto"
   },
+  "files": [
+    "bin/",
+    "index.js",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    ".jsbeautifyrc"
+  ],
   "dependencies": {
     "co": "^4.6.0",
     "debug": "^2.2.0",
