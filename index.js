@@ -21,7 +21,7 @@ const getTables = exports.getTables = async(function*(options) {
   const password = options.password;
   const tables = options.tables;
   const sequelizeLog = Boolean(options.sequelizeLog);
-  
+
   const auto = new SequelizeAuto(database, user, password, {
     host: host,
     port: port,
@@ -68,8 +68,14 @@ const transform = exports.transform = async(function*(options) {
     if (key !== columnName) o.columnName = columnName;
 
     // type
-    o.type = getType(column.type).toLowerCase();
     if (rawType) o.rawType = column.type;
+    const type = getType(column.type);
+    if (Array.isArray(type)) {
+      o.type = type[0];
+      o.enum = type[1];
+    } else {
+      o.type = type.toLowerCase();
+    }
 
     // primaryKey
     if (column.primaryKey) o.primaryKey = true;
@@ -79,12 +85,14 @@ const transform = exports.transform = async(function*(options) {
 
     // comment
     if (options.comment) {
-      o.comment = yield getComment({
+      const comment = yield getComment({
         seq: seqAuto.sequelize,
         dbName: dbName,
         tableName: tableName,
         columnName: columnName
       });
+
+      if (comment) o.comment = comment;
     }
   }
 
@@ -93,8 +101,8 @@ const transform = exports.transform = async(function*(options) {
 
 // http://sailsjs.org/documentation/concepts/models-and-orm/attributes
 const getType = t => {
+  const original = t;
   t = t.toLowerCase();
-  let val;
 
   // boolean
   if (t === 'tinyint(1)' || t === 'boolean' || t === 'bit(1)') return 'boolean';
@@ -120,6 +128,17 @@ const getType = t => {
 
   // json
   if (t.match(/^json/)) return 'json';
+
+  // enum
+  if (t.match(/^enum/)) {
+    let availables = t.match(/^enum\(((?:[\s\S]+?)(,?[\s\S]+?)*?)\)/);
+    availables = availables[1];
+    availables = availables.split(/,/).map(_.trim).filter(Boolean);
+
+    // TODO: not only string
+    availables = availables.map(s => _.trim(s, '\'"'));
+    return ['string', availables];
+  }
 
   return '<uknown type>';
 };
