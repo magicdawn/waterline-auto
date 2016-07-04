@@ -12,7 +12,7 @@ const async = require('co').wrap;
 const _ = require('lodash');
 const debug = require('debug')('waterline-auto:bin');
 const lib = require('../');
-
+const format = require('js-beautify')['js_beautify'];
 const argv = require('minimist')(process.argv.slice(2), {
   alias: {
     h: 'host',
@@ -60,12 +60,14 @@ const main = async(function*() {
     transformed[tableName] = o;
   }
 
+  const formatOptions = fs.readJsonSync(__dirname + '/../.jsbeautifyrc');
   _.each(transformed, (v, k) => {
-    const prefix = '\'use strict\';\n\nmodule.exports = ';
-    const content = prefix + inspect(v, {
-      depth: null
-    }) + ';'; // prefix + JSON.stringify(v, null, '  ')
     const filename = _.upperFirst(_.camelCase(k));
+    const prefix = '\'use strict\';\n\nmodule.exports = ';
+    let content = prefix + inspect(v, {
+      depth: null
+    }) + ';';
+    content = format(content, formatOptions);
     fs.writeFileSync('./' + filename + '.js', content, 'utf8');
   });
 
