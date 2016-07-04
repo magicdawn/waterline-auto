@@ -1,6 +1,6 @@
 {
   "name": "waterline-auto",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Automatically generate bare Waterline models from your database.",
   "main": "index.js",
   "bin": {
