@@ -18,7 +18,21 @@ npm i waterline-auto -g
 type `wa` | `waterline-auto`
 
 ```shell
-$ wa [-h host] [-p port] [-u user] [-a password] [-d database] [-t tables]
+$ wa
+
+    waterline-auto@0.1.0 - auto generate model from your db
+
+    Options
+      -h, --host              host
+      -p, --port              port
+      -u, --user              username
+      -a, --password          password
+      -d, --database          database
+      -t, --table, --tables   table names
+      -r, --raw-type          add `rawType` in output, default true
+      -c, --comment           add `comment` in output, default true
+      --sequelize-log         sequelize `logging`, default true
+      --help                  show this help message
 ```
 
 ### Notes
