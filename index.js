@@ -71,7 +71,7 @@ const transform = exports.transform = async(function*(options) {
     if (rawType) o.rawType = column.type;
     const type = getType(column.type);
     if (Array.isArray(type)) {
-      o.type = type[0];
+      o.type = type[0] && type[0].toLowerCase();
       o.enum = type[1];
     } else {
       o.type = type.toLowerCase();
@@ -82,6 +82,10 @@ const transform = exports.transform = async(function*(options) {
 
     // defaults
     if (column.defaultValue) o.defaultsTo = column.defaultValue;
+    if (o.type === 'boolean' && o.defaultsTo) {
+      let m;
+      if ((m = o.defaultsTo.match(/b['"]([01])['"]/))) o.defaultsTo = m[1] === '1';
+    }
 
     // comment
     if (options.comment) {
@@ -134,9 +138,8 @@ const getType = t => {
     let availables = t.match(/^enum\(((?:[\s\S]+?)(,?[\s\S]+?)*?)\)/);
     availables = availables[1];
     availables = availables.split(/,/).map(_.trim).filter(Boolean);
-
-    // TODO: not only string
     availables = availables.map(s => _.trim(s, '\'"'));
+
     return ['string', availables];
   }
 
