@@ -77,15 +77,16 @@ const transform = exports.transform = async(function*(options) {
       o.type = type.toLowerCase();
     }
 
-    // primaryKey
-    if (column.primaryKey) o.primaryKey = true;
-
     // defaults
     if (column.defaultValue) o.defaultsTo = column.defaultValue;
     if (o.type === 'boolean' && o.defaultsTo) {
       let m;
       if ((m = o.defaultsTo.match(/b['"]([01])['"]/))) o.defaultsTo = m[1] === '1';
     }
+
+    // primaryKey
+    if (column.primaryKey) o.primaryKey = true;
+    if (o.primaryKey && o.type === 'integer') o.autoIncrement = true;
 
     // comment
     if (options.comment) {
