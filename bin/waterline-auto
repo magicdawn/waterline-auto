@@ -8,6 +8,7 @@
 
 const inspect = require('util').inspect;
 const fs = require('fs-extra');
+const path = require('path');
 const async = require('co').wrap;
 const _ = require('lodash');
 const debug = require('debug')('waterline-auto:bin');
@@ -24,7 +25,8 @@ const argv = require('minimist')(process.argv.slice(2), {
     t: 'tables',
     table: 'tables', // torrlent,
     r: 'raw-type',
-    c: 'comment'
+    c: 'comment',
+    o: 'output'
   },
   boolean: ['raw-type', 'comment', 'sequelize-log', 'help'],
   default: {
@@ -55,6 +57,14 @@ if (argv.help) {
   process.exit();
 }
 
+const _tables = (argv.tables || '').split(',').map(_.trim).filter(Boolean);
+if (argv.output && _tables.length > 1) {
+  console.error(`
+    only 1 table supported when output provided
+  `);
+  process.exit(1);
+}
+
 const main = async(function*() {
   const auto = yield lib.getTables({
     host: argv.host,
@@ -62,7 +72,7 @@ const main = async(function*() {
     user: argv.user,
     password: argv.password,
     database: argv.database,
-    tables: (argv.tables || '').split(',').map(_.trim).filter(Boolean),
+    tables: _tables,
     sequelizeLog: argv['sequelize-log']
   });
   const tables = auto.tables;
@@ -84,13 +94,20 @@ const main = async(function*() {
 
   const formatOptions = fs.readJsonSync(__dirname + '/../.jsbeautifyrc');
   _.each(transformed, (v, k) => {
-    const filename = _.upperFirst(_.camelCase(k));
+    let filename;
+    if (argv.output) {
+      filename = argv.output;
+      if (!path.extname(filename)) filename += '.js';
+    } else {
+      filename = _.upperFirst(_.camelCase(k)) + '.js';
+    }
+
     const prefix = '\'use strict\';\n\nmodule.exports = ';
     let content = prefix + inspect(v, {
       depth: null
     }) + ';';
     content = format(content, formatOptions);
-    fs.writeFileSync('./' + filename + '.js', content, 'utf8');
+    fs.writeFileSync('./' + filename, content, 'utf8');
   });
 
   // end
