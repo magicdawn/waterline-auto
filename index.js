@@ -84,7 +84,9 @@ const transform = exports.transform = async(function*(options) {
     if (column.defaultValue) o.defaultsTo = column.defaultValue;
     if (o.type === 'boolean' && o.defaultsTo) {
       let m;
-      if ((m = o.defaultsTo.match(/b['"]([01])['"]/))) o.defaultsTo = m[1] === '1';
+      if ((m = o.defaultsTo.match(/b?['"]?([01])['"]?/))) {
+        o.defaultsTo = m[1] === '1';
+      }
     }
 
     // primaryKey
