@@ -59,16 +59,19 @@ const transform = exports.transform = async(function*(options) {
 
   // attributes
   ret.attributes = {};
+  ret._attributes = {};
   for (let columnName in table) {
     const column = table[columnName];
     const key = _.camelCase(columnName);
-    const o = ret.attributes[key] = {};
+    const o = ret._attributes[key] = {}; // attributes = omit from _attributes
 
     // columnName
     if (key !== columnName) o.columnName = columnName;
 
-    // type
+    // rawType
     if (rawType) o.rawType = column.type;
+
+    // type
     const type = getType(column.type);
     if (Array.isArray(type)) {
       o.type = type[0] && type[0].toLowerCase();
@@ -99,6 +102,15 @@ const transform = exports.transform = async(function*(options) {
 
       if (comment) o.comment = comment;
     }
+
+    // 最后 _attributes
+    ret.attributes[key] = _.omit(ret._attributes[key], ['comment', 'rawType']);
+  }
+
+  // 没有 rawType & comment
+  // 就不写 _attributes 了
+  if (!options.rawType && !options.comment) {
+    delete ret._attributes;
   }
 
   return ret;
