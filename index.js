@@ -82,11 +82,16 @@ const transform = exports.transform = async(function*(options) {
 
     // defaults
     if (column.defaultValue) o.defaultsTo = column.defaultValue;
+    // boolean
     if (o.type === 'boolean' && o.defaultsTo) {
       let m;
       if ((m = o.defaultsTo.match(/b?['"]?([01])['"]?/))) {
         o.defaultsTo = m[1] === '1';
       }
+    }
+    // integer
+    if (o.type === 'integer' && typeof o.defaultsTo !== 'undefined') {
+      o.defaultsTo = Number(o.defaultsTo);
     }
 
     // primaryKey
