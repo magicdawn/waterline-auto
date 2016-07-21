@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.2.1 2016-07-21
+- fix `defaultsTo` for `boolean` / `integer`
+
 ## v0.2.0 2016-07-07
 - add `-o / --output`
 - add `_attributes`
