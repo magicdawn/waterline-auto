@@ -32,6 +32,7 @@ $ wa
       -r, --raw-type          add `rawType` in output, default true
       -c, --comment           add `comment` in output, default true
       --sequelize-log         sequelize `logging`, default true
+      --generated-via         show \`generated via\` header, default true
       --help                  show this help message
 ```
 

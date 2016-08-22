@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.2.2 2016-08-22
+- add `generated-via` option, default `true`
+
 ## v0.2.1 2016-07-21
 - fix `defaultsTo` for `boolean` / `integer`
 
