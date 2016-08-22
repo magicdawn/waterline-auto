@@ -28,12 +28,13 @@ const argv = require('minimist')(process.argv.slice(2), {
     c: 'comment',
     o: 'output'
   },
-  boolean: ['raw-type', 'comment', 'sequelize-log', 'help'],
+  boolean: ['raw-type', 'comment', 'sequelize-log', 'help', 'generated-via'],
   default: {
     comment: true,
     help: false,
     'raw-type': true,
-    'sequelize-log': true
+    'sequelize-log': true,
+    'generated-via': true,
   }
 });
 
@@ -52,6 +53,7 @@ if (argv.help) {
       -r, --raw-type          add \`rawType\` in output, default true
       -c, --comment           add \`comment\` in output, default true
       --sequelize-log         sequelize \`logging\`, default true
+      --generated-via         show \`generated via\` header, default true
       --help                  show this help message
   `);
   process.exit();
@@ -103,8 +105,9 @@ const main = async(function*() {
     }
 
     const cmd = ['wa'].concat(process.argv.slice(2)).join(' ');
-    const generated = '// generated via `'+ cmd +'`';
-    const prefix = '\'use strict\';\n'+ generated +'\n\nmodule.exports = ';
+    let generated = '// generated via `' + cmd + '`\n';
+    if (!argv['generated-via']) generated = '';
+    const prefix = '\'use strict\';\n' + generated + '\nmodule.exports = ';
 
     let content = prefix + inspect(v, {
       depth: null
