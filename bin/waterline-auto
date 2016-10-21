@@ -52,6 +52,7 @@ if (argv.help) {
       -t, --table, --tables   table names
       -r, --raw-type          add \`rawType\` in output, default true
       -c, --comment           add \`comment\` in output, default true
+      -o, --output            specify the output file
       --sequelize-log         sequelize \`logging\`, default true
       --generated-via         show \`generated via\` header, default true
       --help                  show this help message
