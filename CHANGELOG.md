@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.3.0 2016-10-24
+- fix `CURRENT_TIMESTAMP` for `datetime`
+- and delete `CURRENT_TIMESTAMP` in `createdAt` & `updatedAt`
+
 ## v0.2.2 2016-08-22
 - add `generated-via` option, default `true`
 
