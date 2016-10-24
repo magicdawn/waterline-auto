@@ -113,6 +113,11 @@ const main = async(function*() {
     let content = prefix + inspect(v, {
       depth: null
     }) + ';';
+
+    // 特殊处理
+    // CURRENT_TIMESTAMP
+    content = content.replace(/\'CURRENT_TIMESTAMP\'/, 'function(){ return new Date(); }');
+
     content = format(content, formatOptions);
     fs.writeFileSync('./' + filename, content, 'utf8');
   });

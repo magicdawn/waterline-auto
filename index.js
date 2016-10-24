@@ -93,6 +93,12 @@ const transform = exports.transform = async(function*(options) {
     if (o.type === 'integer' && typeof o.defaultsTo !== 'undefined') {
       o.defaultsTo = Number(o.defaultsTo);
     }
+    // datetime
+    if (o.type === 'datetime' &&
+      (columnName === 'createdAt' || columnName === 'updatedAt') &&
+      o.defaultsTo === 'CURRENT_TIMESTAMP') {
+      delete o.defaultsTo;
+    }
 
     // primaryKey
     if (column.primaryKey) o.primaryKey = true;
