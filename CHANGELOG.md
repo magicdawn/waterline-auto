@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.3.1 2016-11-18
+- map all `CURRENT_TIMESTAMP` to `() => new Date`
+
 ## v0.3.0 2016-10-24
 - fix `CURRENT_TIMESTAMP` for `datetime`
 - and delete `CURRENT_TIMESTAMP` in `createdAt` & `updatedAt`
