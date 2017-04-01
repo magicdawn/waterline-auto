@@ -11,7 +11,7 @@ env:
 rules:
   # basic
   semi: [error, always]
-  quotes: [error, single]
+  # quotes: [error, single]
   eqeqeq: error
   camelcase: error
   radix: error

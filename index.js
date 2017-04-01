@@ -1,13 +1,25 @@
+/* eslint semi: off */
 'use strict';
 
 /**
  * Module dependencies
  */
 
+const pify = require('promise.ify')
 const SequelizeAuto = require('sequelize-auto');
-require('promise.ify').all(SequelizeAuto.prototype);
-const async = require('co').wrap;
+const mysql = require('mysql');
+const co = require('co')
 const _ = require('lodash');
+const debug = require('debug')('waterline-auto:index')
+
+/**
+ * patch
+ */
+
+pify.all(SequelizeAuto.prototype);
+pify.all(require('mysql/lib/Connection').prototype)
+
+const async = co.wrap
 
 /**
  * getTables
@@ -34,6 +46,37 @@ const getTables = exports.getTables = async(function*(options) {
 });
 
 /**
+ * getColumns
+ */
+
+exports.getColumns = async(function*(options) {
+  const host = options.host || 'localhost';
+  const port = options.port || '3306';
+  const user = options.user;
+  const password = options.password;
+  const database = options.database;
+
+  const conn = mysql.createConnection({
+    host,
+    port,
+    user,
+    password,
+    database: 'information_schema',
+  })
+
+  const sql = `
+    SELECT *
+    FROM COLUMNS
+    WHERE TABLE_SCHEMA = '${ database }'
+  `
+
+  debug('getColumns: \n%s', sql)
+  const results = yield conn.queryAsync(sql)
+  yield conn.endAsync()
+  return results[0]
+})
+
+/**
  * transform a table
  */
 
@@ -45,6 +88,8 @@ const transform = exports.transform = async(function*(options) {
   const dbName = options.dbName;
   const tableName = options.tableName;
   const table = options.table;
+  const columns = options.columns
+
   const ret = {
     tableName: tableName
   };
@@ -102,7 +147,19 @@ const transform = exports.transform = async(function*(options) {
 
     // primaryKey
     if (column.primaryKey) o.primaryKey = true;
-    if (o.primaryKey && o.type === 'integer') o.autoIncrement = true;
+    if (o.primaryKey) {
+      // decide whether autoIncrement ?
+      const item = _.find(columns, {
+        TABLE_NAME: tableName,
+        COLUMN_KEY: 'PRI'
+      })
+
+      const extra = item && item.EXTRA
+      const arr = (extra || '').split(',').filter(Boolean)
+      if (arr.includes('auto_increment')) {
+        o.autoIncrement = true
+      }
+    }
 
     // comment
     if (options.comment) {
