@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.4.0 2017-04-02
+- fix `autoIncrement`
+
 ## v0.3.1 2016-11-18
 - map all `CURRENT_TIMESTAMP` to `() => new Date`
 
