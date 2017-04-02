@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-'use strict';
+'use strict'
 
 /**
  * Module dependencies
  */
 
-const inspect = require('util').inspect;
-const fs = require('fs-extra');
-const path = require('path');
-require('log-reject-error')();
-const async = require('co').wrap;
-const _ = require('lodash');
-const debug = require('debug')('waterline-auto:bin');
-const lib = require('../');
-const format = require('js-beautify')['js_beautify'];
-const pkgVersion = require('../package').version;
+const inspect = require('util').inspect
+const fs = require('fs-extra')
+const path = require('path')
+require('log-reject-error')()
+const async = require('co').wrap
+const _ = require('lodash')
+const debug = require('debug')('waterline-auto:bin')
+const lib = require('../')
+const format = require('js-beautify')['js_beautify']
+const pkgVersion = require('../package').version
 const argv = require('minimist')(process.argv.slice(2), {
   alias: {
     h: 'host',
@@ -37,9 +37,9 @@ const argv = require('minimist')(process.argv.slice(2), {
     'sequelize-log': true,
     'generated-via': true,
   }
-});
+})
 
-if (process.argv.length <= 2) argv.help = true;
+if (process.argv.length <= 2) argv.help = true
 if (argv.help) {
   console.log(`
     waterline-auto@${ pkgVersion } - auto generate model from your db
@@ -57,16 +57,16 @@ if (argv.help) {
       --sequelize-log         sequelize \`logging\`, default true
       --generated-via         show \`generated via\` header, default true
       --help                  show this help message
-  `);
-  process.exit();
+  `)
+  process.exit()
 }
 
-const _tables = (argv.tables || '').split(',').map(_.trim).filter(Boolean);
+const _tables = (argv.tables || '').split(',').map(_.trim).filter(Boolean)
 if (argv.output && _tables.length > 1) {
   console.error(`
     only 1 table supported when output provided
-  `);
-  process.exit(1);
+  `)
+  process.exit(1)
 }
 
 const main = async(function*() {
@@ -78,9 +78,9 @@ const main = async(function*() {
     database: argv.database,
     tables: _tables,
     sequelizeLog: argv['sequelize-log']
-  });
-  const tables = auto.tables;
-  debug('tables: %j', tables);
+  })
+  const tables = auto.tables
+  debug('tables: %j', tables)
 
   // 从 performance_schema 中取出所有列
   const columns = yield lib.getColumns({
@@ -89,13 +89,13 @@ const main = async(function*() {
     user: argv.user,
     password: argv.password,
     database: argv.database,
-  });
+  })
   // console.log(columns);
   // process.exit()
 
-  const transformed = {};
+  const transformed = {}
   for (let tableName in tables) {
-    const table = tables[tableName];
+    const table = tables[tableName]
     const o = yield lib.transform({
       dbName: argv.database,
       tableName,
@@ -104,23 +104,23 @@ const main = async(function*() {
       comment: argv.comment,
       seqAuto: auto,
       columns,
-    });
-    transformed[tableName] = o;
+    })
+    transformed[tableName] = o
   }
 
-  const formatOptions = fs.readJsonSync(__dirname + '/../.jsbeautifyrc');
+  const formatOptions = fs.readJsonSync(__dirname + '/../.jsbeautifyrc')
   _.each(transformed, (v, k) => {
-    let filename;
+    let filename
     if (argv.output) {
-      filename = argv.output;
-      if (!path.extname(filename)) filename += '.js';
+      filename = argv.output
+      if (!path.extname(filename)) filename += '.js'
     } else {
-      filename = _.upperFirst(_.camelCase(k)) + '.js';
+      filename = _.upperFirst(_.camelCase(k)) + '.js'
     }
 
-    const cmd = ['wa'].concat(process.argv.slice(2)).join(' ');
-    let generated = `// generated via \`${ cmd }\``;
-    if (!argv['generated-via']) generated = '';
+    const cmd = ['wa'].concat(process.argv.slice(2)).join(' ')
+    let generated = `// generated via \`${ cmd }\``
+    if (!argv['generated-via']) generated = ''
 
     const prefix = [
       `/* eslint semi: off */`,
@@ -129,21 +129,21 @@ const main = async(function*() {
       `'use strict'`,
       '',
       'module.exports = ',
-    ].join('\n');
+    ].join('\n')
     let content = prefix + inspect(v, {
       depth: null
-    });
+    })
 
     // 特殊处理
     // CURRENT_TIMESTAMP
-    content = content.replace(/\'CURRENT_TIMESTAMP\'/g, 'function(){ return new Date(); }');
+    content = content.replace(/\'CURRENT_TIMESTAMP\'/g, 'function(){ return new Date(); }')
 
-    content = format(content, formatOptions);
-    fs.writeFileSync('./' + filename, content, 'utf8');
-  });
+    content = format(content, formatOptions)
+    fs.writeFileSync('./' + filename, content, 'utf8')
+  })
 
   // end
-  process.exit();
-});
+  process.exit()
+})
 
-main().catch(e => console.error(e.stack || e));
+main().catch(e => console.error(e.stack || e))

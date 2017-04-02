@@ -10,8 +10,8 @@ env:
 # rules
 rules:
   # basic
-  semi: [error, always]
-  # quotes: [error, single]
+  semi: [error, never]
+  quotes: [error, single, { allowTemplateLiterals: true }]
   eqeqeq: error
   camelcase: error
   radix: error
@@ -32,6 +32,8 @@ rules:
   no-unused-vars: off
   no-console: off
   no-unreachable: off
+  require-yield: off
+  no-constant-condition: off
 
 parserOptions:
   ecmaVersion: 6
