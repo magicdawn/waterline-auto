@@ -1,4 +1,6 @@
 # waterline-auto
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/magicdawn/waterline-auto.svg)](https://greenkeeper.io/)
 > Automatically generate bare Waterline models from your database.
 
 <!--
